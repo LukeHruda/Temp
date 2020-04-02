@@ -63,6 +63,7 @@ void *customerMethod(void *customerNum){
                 break;
             }
         }
+        //used for readability
         sleep(1);
     }
     return 0;
