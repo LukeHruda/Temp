@@ -27,13 +27,19 @@ void *customerMethod(void *customerNum){
     int request [NUM_RESOURCES];
     
     while(1){
+        
+        //request resources
         for(int i = 0; i < NUM_RESOURCES; i++){
             request[i] = rand() % (maximum[customer][i] + 1); 
         }
+        
+        //lock
         pthread_mutex_lock(&lock);
-
+        
+        //attempt to acquire the resouces and then unlock
         acquiredResources = request_res(customer,request);
         pthread_mutex_unlock(&lock);
+        //if resources lock and sleep
         if(acquiredResources){
             sleep((int)rand() % 5 + 1);
             acquiredResources = false;
@@ -191,8 +197,11 @@ bool release_res(int n_customer, int release[])
 
 int main(int argc, char *argv[])
 {   
+    //create threads and lock
     pthread_t threads[NUM_CUSTOMERS];
     pthread_mutex_init(&lock, NULL);
+    
+    //initialize the resources
     for (int i =0; i < NUM_RESOURCES; i++) {
         available[i] = atoi(argv[i+1]);
         for(int j=0; j<NUM_CUSTOMERS; j++) {
@@ -208,16 +217,20 @@ int main(int argc, char *argv[])
         }
         puts("");
     }
+    
+    //create customers and threads
     srand(time(NULL));
     for(int i = 0; i < NUM_CUSTOMERS; i++){
         int *c_num = malloc(sizeof(*c_num));
-        if(c_num ==NULL){
+        if(c_num == NULL){
             printf("couldn't make customer number");
             exit(1);
         }
         *c_num = i;
         pthread_create(&threads[i],NULL,&customerMethod, c_num);
     }
+    
+    //clean up
     for(int i = 0; i < NUM_CUSTOMERS; i++){
         pthread_join(threads[i],0);
     }
